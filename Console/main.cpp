@@ -2,16 +2,90 @@
 
 using namespace std;
 
+struct obstacle
+{
+    COORD Pos; // 생성위치
+    int time; // 생성시간
+    double speed; // 이동속도
+    int direction; // 이동방향
+    obstacle(int initX, int initY, int initTime, double initSpeed, int initDirection)
+    {
+        Pos.X = initX, Pos.Y = initY;
+        time = initTime;
+        speed = initSpeed;
+        direction = initDirection;
+    }
+
+    void move()
+    {
+        switch (direction)
+        {
+        case(0): // 오른쪽
+            Pos.X ++;
+            break;
+        case(1): // 왼쪽
+            Pos.X --;
+            break;
+        case(2): // 아래
+            Pos.Y ++;
+            break;
+        case(3): // 위
+            Pos.Y --;
+            break;
+        }
+    }
+
+    void draw()
+    {
+        gotoXY(Pos.X, Pos.Y);
+        setColor(15, 0);
+        printf("  ");
+    }
+
+    bool timer()
+    {
+        static ULONGLONG elapsedTime;
+        elapsedTime += getDeltaTime();
+        
+        if (time <= elapsedTime) return true;
+        else return false;
+    }
+
+    void generate()
+    {
+        while (timer())
+        {
+            draw();
+            move();
+            Sleep(speed);
+        }
+    }
+};
+
+void generateObstacles()
+{
+    // 생성위치, 생성시간, 이동속도, 이동방향
+    obstacle test(0, 10, 0, 1, 0);
+    test.generate();
+}
+
+
+
+
 int main()
 {
-    while (true)
-    {
-        drawTitle();
-        if (isStart) startGame();
-        if (isCtrl) drawCtrl();
-        if (isQuit) quitGame();
-    }
+    generateObstacles();
+    //while (true)
+    //{
+    //    drawTitle();
+    //    if (isStart) startGame();
+    //    if (isCtrl) drawCtrl();
+    //    if (isQuit) quitGame();
+    //    
+    //}
+    
 }
+
 
 void initTime()
 {
@@ -30,8 +104,6 @@ ULONGLONG getDeltaTime()
 {
     return deltaTime;
 }
-
-
 
 void getKey()
 {
@@ -59,14 +131,13 @@ void updateInput()
     {
         isRight = true;
     }
-
+    
     if (GetAsyncKeyState(VK_SPACE) & 0x8000)
     {
         isSpace = true;
     }
+
 }
-
-
 
 void initConsole()
 {
@@ -242,7 +313,7 @@ void startGame()
     {
         updateTime();
         updateInput();
-        updateMove();
+        updatePlayerMove();
     }
 }
 
@@ -263,7 +334,7 @@ void setMovableMap()
 
 void drawScreen()
 {
-    for (int x = playerMovableRect.Left; x < playerMovableRect.Right; x++)
+    for (int x = playerMovableRect.Left; x <= playerMovableRect.Right; x++)
     {
         gotoXY(x, playerMovableRect.Bottom + 1);
         setColor(0, 15);
@@ -274,6 +345,80 @@ void drawScreen()
     prePlayerPos.X = (playerMovableRect.Right + playerMovableRect.Left) / 2;
     prePlayerPos.Y = playerMovableRect.Bottom;
     drawPlayer(true);
+}
+
+
+
+void updatePlayerMove()
+{
+    static ULONGLONG elapsedTime;
+    elapsedTime += getDeltaTime();
+    
+    while (elapsedTime >= playerMoveSpeed)
+    {
+        updatePlayerPos();
+        elapsedTime -= playerMoveSpeed;
+    }
+}
+
+void updatePlayerPos()
+{
+    prePlayerPos = curPlayerPos;
+    
+
+    if (isRight)
+    {
+        isRight = false;
+        curPlayerPos.X++;
+        limit(curPlayerPos.X, playerMovableRect.Left, playerMovableRect.Right);
+    }
+    if (isLeft)
+    {
+        isLeft = false;
+        curPlayerPos.X--;
+        limit(curPlayerPos.X, playerMovableRect.Left, playerMovableRect.Right);
+    }
+
+    
+    if (isSpace)
+    {
+        isSpace = false;
+        if (onGround)
+        {
+            velocity = jumpVelocity;
+            onGround = false;
+        }
+        if (canJump)
+        {
+            velocity = doubleJumpVelocity;
+        }
+        
+    }
+   
+    // 공중에 떠있으면 내려오게 만든다.
+    curPlayerPos.Y += velocity;
+    velocity += gravity;
+
+    if (curPlayerPos.Y <= playerMovableRect.Top)
+    {
+        curPlayerPos.Y = playerMovableRect.Top;
+    }
+    if (curPlayerPos.Y >= playerMovableRect.Bottom)
+    {
+        curPlayerPos.Y = playerMovableRect.Bottom;
+        velocity = 0;
+        onGround = true;
+        canJump = false;
+    }
+    else if (curPlayerPos.Y > 20)
+    {
+        canJump = true;
+    }
+    
+    if ((prePlayerPos.X != curPlayerPos.X) || (prePlayerPos.Y != curPlayerPos.Y))
+    {
+        drawPlayer(false);
+    }
 }
 
 void drawPlayer(bool isClear)
@@ -292,83 +437,10 @@ void drawPlayer(bool isClear)
     printf("  ");
 }
 
-void updateMove()
-{
-    static ULONGLONG elapsedTime;
-    elapsedTime += getDeltaTime();
-    
-    
-
-    while (elapsedTime >= playerMoveSpeed)
-    {
-        updatePlayer();
-        elapsedTime -= playerMoveSpeed;
-
-        gotoXY(0, 0);
-        updateCount++;
-        cout << "update" << updateCount;
-        
-    }
-    
-    
-    
-}
-
-void updatePlayer()
-{
-    prePlayerPos = curPlayerPos;
-
-    if (isRight)
-    {
-        isRight = false;
-        curPlayerPos.X++;
-        limit(curPlayerPos.X, playerMovableRect.Left, playerMovableRect.Right);
-    }
-    if (isLeft)
-    {
-        isLeft = false;
-        curPlayerPos.X--;
-        limit(curPlayerPos.X, playerMovableRect.Left, playerMovableRect.Right);
-    }
-    if (isSpace)
-    {
-        if (curPlayerPos.Y == playerMovableRect.Bottom)
-        {
-            curPlayerPos.Y -= jumpHeight;
-            Sleep(20);
-            curPlayerPos.Y += jumpHeight;
-        }
-
-        
-        
-        
-        //while (true)
-        //{
-        //    curPlayerPos.Y--;
-        //    Sleep(1000);
-        //    if (curPlayerPos.Y <= jumpHeight) break;
-        //}
-        //while(true)
-        //{
-        //    curPlayerPos.Y++;
-        //    Sleep(1000);
-        //    if (curPlayerPos.Y <= playerMovableRect.Bottom) break;
-        //}
-        
-    }
-    if ((prePlayerPos.X != curPlayerPos.X) || (prePlayerPos.Y != curPlayerPos.Y))
-    {
-        drawPlayer(false);
-    }
-    gotoXY(0, 1);
-    updatePlayerCount++;
-    cout << updatePlayerCount;
-}
-
 void limit(short& n, short min, short max)
 {
     if (n < min) n = min;
-    if (n > max) n - max;
+    if (n > max) n = max;
 }
 
 void quitGame()

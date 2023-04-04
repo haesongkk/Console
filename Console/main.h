@@ -12,9 +12,9 @@
 
 const int playerMoveSpeed = 1;
 
-int updateCount = 0;
-int updatePlayerCount = 0;
 
+int updateMoveCount = 0;
+int updatePlayerCount = 0;
 
 bool isStart;
 bool isCtrl;
@@ -24,9 +24,15 @@ bool isLeft;
 bool isRight;
 bool isSpace;
 
-bool isJumping;
-int jumpCount = 0;
-int jumpHeight = 3;
+
+double velocity;
+bool onGround = true;
+bool canJump;
+bool doubleJumpAvailable = true;
+
+const double gravity = 0.01;
+const double jumpVelocity = -0.03;
+const double doubleJumpVelocity = -0.02;
 
 ULONGLONG previousTime;
 ULONGLONG currentTime;
