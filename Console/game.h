@@ -3,7 +3,7 @@
 
 
 
-void setMovableMap();
+void setScreenPoint();
 void drawScreen();
 void drawPlayer(bool);
 void updatePlayerPos();
