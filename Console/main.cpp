@@ -2,6 +2,25 @@
 
 using namespace std;
 
+//
+// 게임 종료 >> quitGame
+// 
+// 게임 오버, 게임 클리어 >> startGame
+// 크레딧 >> main
+// 
+// updateUI 제대로 >> updateUI
+// hpCount--시 깜빡이는 이벤트 넣기 >> drawPlayer
+//  
+// +++
+// 
+// 장애물 설정 다양하게 >> setObs
+// 배경음악 넣기
+// 더블 점프 제대로 구현하기
+// drawTitle, drawCtrl, quitGame, gameOver, gameClear ui 꾸미기
+// 함수, 변수 이름 정리 (drawTitle >> titleMenu)
+// 파일 분할...
+//
+
 int main()
 {
     setScreenPoint();
@@ -11,8 +30,13 @@ int main()
         if (isStart) startGame();
         if (isCtrl) drawCtrl();
         if (isQuit) quitGame();
+        // if(isCredit) showCredit(); 생성
     }   
 }
+
+
+
+
 
 
 void drawTitle()
@@ -161,13 +185,16 @@ void startGame()
         generateObs();
         updateInput();
         updatePlayerMove();
-        updateScreen();
+        //updateScreen();
         updateUI();
         if (hpCount == 0)
         {
+            // 게임 오버 화면 만들기 : 점수표시, 메인으로 돌아가기
+            // gameOver(); : (점수 표시) 스페이스바 >> quitGame();
             isQuit = true;
             break;
         }
+        // if(isClear) gameClear(); : 스페이스바 >> quitGame();
     }
     return;
 }
@@ -200,9 +227,12 @@ void quitGame()
 
     while (true)
     {
-     
+        // 시작화면으로 돌아가기
+        // 게임 종료
     }
 }
+
+
 
 
 
@@ -231,6 +261,11 @@ ULONGLONG getElapsedTime()
 {
     return elapsedTime;
 }
+
+
+
+
+
 
 void getKey()
 {
@@ -266,6 +301,11 @@ void updateInput()
 
 }
 
+
+
+
+
+
 void initConsole()
 {
     // 화면 
@@ -292,11 +332,11 @@ void gotoXY(int x, int y)
     SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), cur);
 }
 
-
-
-
-
-
+void limit(short& n, short min, short max)
+{
+    if (n < min) n = min;
+    if (n > max) n = max;
+}
 
 void setStart()
 {
@@ -306,12 +346,16 @@ void setStart()
 
 void updateUI()
 {
+    //ui 위치 screenPoint로 설정하기!
+
+
+    // 경과 시간
     static ULONGLONG temp;
     temp += getDeltaTime();
     if (temp >= 10)
     {
         timer += 0.01;
-        temp -= 1000;
+        temp -= 10;
         
     }
 
@@ -327,7 +371,6 @@ void updateUI()
 
     
 }
-
 
 void setScreenPoint()
 {
@@ -382,7 +425,6 @@ void setScreenPoint()
 
 }
 
-
 void drawScreen()
 {
     for (int x = playerMovableRect.Left; x <= playerMovableRect.Right; x++)
@@ -427,6 +469,10 @@ void updateScreen()
         putchar(' ');
     }
 }
+
+
+
+
 
 void updatePlayerMove()
 {
@@ -498,6 +544,7 @@ void updatePlayerPos()
     {
         drawPlayer(false);
     }
+    else drawPlayer(true);
 }
 
 void drawPlayer(bool isClear)
@@ -510,17 +557,17 @@ void drawPlayer(bool isClear)
         printf("  ");
     }
 
+    //if(isCrash)
+
     gotoXY(curPlayerPos.X, curPlayerPos.Y);
     setColor(13, 15);
     //putchar('  ');
     printf("  ");
 }
 
-void limit(short& n, short min, short max)
-{
-    if (n < min) n = min;
-    if (n > max) n = max;
-}
+
+
+
 
 // obs 기본값 설정
 void setObs()
@@ -528,11 +575,15 @@ void setObs()
     // 생성 위치
     for (int i = 0; i < 100; i++)
     {
-        if (i % 5 == 0) obs[i].pos = screenPoint[24];
-        if (i % 5 == 1) obs[i].pos = screenPoint[18];
-        if (i % 5 == 3) obs[i].pos = screenPoint[12];
-        if (i % 5 == 2) obs[i].pos = screenPoint[6];
-        if (i % 5 == 4) obs[i].pos = screenPoint[0];
+        if (i % 5 == 0) obs[i].curPos = screenPoint[24];
+        if (i % 5 == 1) obs[i].curPos = screenPoint[18];
+        if (i % 5 == 3) obs[i].curPos = screenPoint[12];
+        if (i % 5 == 2) obs[i].curPos = screenPoint[6];
+        if (i % 5 == 4) obs[i].curPos = screenPoint[0];
+    }
+    for (int i = 0; i < 100; i++)
+    {
+        obs[i].prePos = obs[i].curPos;
     }
     // 생성 시간
     for (int i = 0; i < 100; i++)
@@ -592,19 +643,21 @@ void updateObsMove(int i)
 // obs 이동 방향 적용 : 오른쪽 0 왼쪽 1 아래 2 위 3
 void updateObsPos(int i)
 {
+    obs[i].prePos = obs[i].curPos;
+
     switch (obs[i].direction)
     {
     case(0):
-        obs[i].pos.X++;
+        obs[i].curPos.X++;
         break;
     case(1):
-        obs[i].pos.X--;
+        obs[i].curPos.X--;
         break;
     case(2):
-        obs[i].pos.Y++;
+        obs[i].curPos.Y++;
         break;
     case(3):
-        obs[i].pos.Y--;
+        obs[i].curPos.Y--;
         break;
     }
 }
@@ -613,39 +666,20 @@ void updateObsPos(int i)
 void updateObsDraw(int i)
 {
     // 이전 위치 삭제
-    switch (obs[i].direction)
-    {
-    case(0): // 오른쪽
-        gotoXY(obs[i].pos.X - 1, obs[i].pos.Y);
-        setColor(0, 0);
-        printf("  ");
 
-        break;
-    case(1): // 왼쪽
-        gotoXY(obs[i].pos.X + 1, obs[i].pos.Y);
-        setColor(0, 0);
-        printf("  ");
-        break;
-    case(2): // 아래
-        gotoXY(obs[i].pos.X, obs[i].pos.Y - 1);
-        setColor(0, 0);
-        printf("  ");
-        break;
-    case(3): // 위
-        gotoXY(obs[i].pos.X, obs[i].pos.Y + 1);
-        setColor(0, 0);
-        printf("  ");
-        break;
-    }
+    gotoXY(obs[i].prePos.X, obs[i].prePos.Y);
+    setColor(0, 0);
+    printf("  ");
+
 
     // 화면 벗어나면 끝
-    if (obs[i].pos.X > consoleScreenSize.Right) return;
-    if (obs[i].pos.X < consoleScreenSize.Left) return;
-    if (obs[i].pos.Y > consoleScreenSize.Bottom) return;
-    if (obs[i].pos.Y < consoleScreenSize.Top) return;
+    if (obs[i].curPos.X > consoleScreenSize.Right) return;
+    if (obs[i].curPos.X < consoleScreenSize.Left) return;
+    if (obs[i].curPos.Y > consoleScreenSize.Bottom) return;
+    if (obs[i].curPos.Y < consoleScreenSize.Top) return;
 
     // 현재 위치 표시
-    gotoXY(obs[i].pos.X, obs[i].pos.Y);
+    gotoXY(obs[i].curPos.X, obs[i].curPos.Y);
     setColor(15, 0);
     printf("  ");
 
@@ -655,5 +689,6 @@ void updateObsDraw(int i)
 
 void updateCollision(int i)
 {
-    if (obs[i].pos.X == curPlayerPos.X && obs[i].pos.Y == curPlayerPos.Y) hpCount--;
+    if (obs[i].curPos.X == curPlayerPos.X && obs[i].curPos.Y == curPlayerPos.Y) hpCount--;
+    else if (obs[i].curPos.X == prePlayerPos.X && obs[i].curPos.Y == prePlayerPos.Y) hpCount--;
 }

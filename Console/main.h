@@ -20,7 +20,8 @@ double timer;
 
 struct obstacle
 {
-    COORD pos; // 생성위치
+    COORD curPos; // 생성위치
+    COORD prePos;
     ULONGLONG time;
     double speed; // 이동속도
     int direction; // 이동방향
