@@ -4,92 +4,105 @@ using namespace std;
 
 struct obstacle
 {
-    COORD Pos; // 생성위치
-    int time; // 생성시간
+    COORD pos; // 생성위치
+    
     double speed; // 이동속도
     int direction; // 이동방향
-    obstacle(int initX, int initY, int initTime, double initSpeed, int initDirection)
+
+    // 생성자
+    obstacle(int initX, int initY, double initSpeed, int initDirection)
     {
-        Pos.X = initX, Pos.Y = initY;
-        time = initTime;
+        pos.X = initX; pos.Y = initY;
         speed = initSpeed;
         direction = initDirection;
     }
 
+    // 오른쪽 0 왼쪽 1 아래 2 위 3
     void move()
     {
         switch (direction)
         {
-        case(0): // 오른쪽
-            Pos.X ++;
+        case(0):
+            pos.X++;
             break;
-        case(1): // 왼쪽
-            Pos.X --;
+        case(1):
+            pos.X--;
             break;
-        case(2): // 아래
-            Pos.Y ++;
+        case(2):
+            pos.Y++;
             break;
-        case(3): // 위
-            Pos.Y --;
+        case(3):
+            pos.Y--;
             break;
         }
     }
 
     void draw()
     {
-        gotoXY(Pos.X, Pos.Y);
+        // 이전 위치 삭제
+        switch (direction)
+        {
+        case(0): // 오른쪽
+            gotoXY(pos.X - 1, pos.Y);
+            setColor(0, 0);
+            printf("  ");
+
+            break;
+        case(1): // 왼쪽
+            gotoXY(pos.X + 1, pos.Y);
+            setColor(0, 0);
+            printf("  ");
+            break;
+        case(2): // 아래
+            gotoXY(pos.X, pos.Y - 1);
+            setColor(0, 0);
+            printf("  ");
+            break;
+        case(3): // 위
+            gotoXY(pos.X, pos.Y + 1);
+            setColor(0, 0);
+            printf("  ");
+            break;
+        }
+
+        // 화면 벗어나면 끝
+        if (pos.X >= consoleScreenSize.Right) return;
+        if (pos.X <= consoleScreenSize.Left) return;
+        if (pos.Y >= consoleScreenSize.Bottom) return;
+        if (pos.Y <= consoleScreenSize.Top) return;
+
+        // 현재 위치 표시
+        gotoXY(pos.X, pos.Y);
         setColor(15, 0);
         printf("  ");
     }
-
-    bool timer()
-    {
-        static ULONGLONG elapsedTime;
-        elapsedTime += getDeltaTime();
-        
-        if (time <= elapsedTime) return true;
-        else return false;
-    }
-
-    void generate()
-    {
-        while (timer())
-        {
-            draw();
-            move();
-            Sleep(speed);
-        }
-    }
 };
 
-void generateObstacles()
-{
-    // 생성위치, 생성시간, 이동속도, 이동방향
-    obstacle test(0, 10, 0, 1, 0);
-    test.generate();
-}
-
-
+//bool isCollision()
+//{
+//
+//    if (obs.pos.X == curPlayerPos.X && obs.pos.Y == curPlayerPos.Y) return true;
+//
+//    return false;
+//}
 
 
 int main()
 {
-    generateObstacles();
-    //while (true)
-    //{
-    //    drawTitle();
-    //    if (isStart) startGame();
-    //    if (isCtrl) drawCtrl();
-    //    if (isQuit) quitGame();
-    //    
-    //}
-    
+    //generateObstacles();
+    while (true)
+    {
+        drawTitle();
+        if (isStart) startGame();
+        if (isCtrl) drawCtrl();
+        if (isQuit) quitGame();
+    }   
 }
-
 
 void initTime()
 {
     currentTime = previousTime = GetTickCount64();
+    elapsedTime = 0;
 }
 
 void updateTime()
@@ -98,11 +111,17 @@ void updateTime()
     currentTime = GetTickCount64();
 
     deltaTime = currentTime - previousTime;
+    elapsedTime += deltaTime;
 }
 
 ULONGLONG getDeltaTime()
 {
     return deltaTime;
+}
+
+ULONGLONG getElapsedTime()
+{
+    return elapsedTime;
 }
 
 void getKey()
@@ -309,12 +328,19 @@ void startGame()
     isStart = false;
     setMovableMap();
     drawScreen();
+    
     while (true)
     {
+        gotoXY(0, 0);
+        cout << elapsedTime;
         updateTime();
         updateInput();
         updatePlayerMove();
+        //updateObstacles();
+        //updateUI();
+        //if(isQuit) break;
     }
+    //quitGame();
 }
 
 void setMovableMap()
@@ -347,17 +373,15 @@ void drawScreen()
     drawPlayer(true);
 }
 
-
-
 void updatePlayerMove()
 {
-    static ULONGLONG elapsedTime;
-    elapsedTime += getDeltaTime();
+    static ULONGLONG time = 0;
+    time += getDeltaTime();
     
-    while (elapsedTime >= playerMoveSpeed)
+    while (time >= playerMoveSpeed)
     {
         updatePlayerPos();
-        elapsedTime -= playerMoveSpeed;
+        time -= playerMoveSpeed;
     }
 }
 

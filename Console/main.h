@@ -12,10 +12,6 @@
 
 const int playerMoveSpeed = 1;
 
-
-int updateMoveCount = 0;
-int updatePlayerCount = 0;
-
 bool isStart;
 bool isCtrl;
 bool isQuit;
@@ -37,6 +33,7 @@ const double doubleJumpVelocity = -0.02;
 ULONGLONG previousTime;
 ULONGLONG currentTime;
 ULONGLONG deltaTime;
+ULONGLONG elapsedTime;
 
 SMALL_RECT consoleScreenSize;
 SMALL_RECT playerMovableRect;
