@@ -3,3 +3,4 @@
 void initTime();
 void updateTime();
 ULONGLONG getDeltaTime();
+ULONGLONG getElapsedTime();

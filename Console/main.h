@@ -18,6 +18,8 @@ int updateCount = 0;
 int hpCount;
 double timer;
 
+const double clearTime = 10;
+
 struct obstacle
 {
     COORD curPos; // 생성위치
@@ -32,20 +34,27 @@ obstacle obs[100];
 bool isStart;
 bool isCtrl;
 bool isQuit;
+bool isCredit;
+
+bool isOver;
+bool isClear;
 
 bool isLeft;
 bool isRight;
 bool isSpace;
 
+const ULONGLONG inputDelay = 100;
+const ULONGLONG showDelay = 500;
+const ULONGLONG jumpDelay = 10;
 
 double velocity;
 bool onGround = true;
-bool canJump;
-bool doubleJumpAvailable = true;
+bool onJump;
+bool isCrash;
 
-const double gravity = 0.01;
-const double jumpVelocity = -0.03;
-const double doubleJumpVelocity = -0.02;
+const double gravity = 0.005;
+const double jumpVelocity = -0.15; // 2단 구현되면 0.08
+const double doubleJumpVelocity = -0.05;
 
 ULONGLONG previousTime;
 ULONGLONG currentTime;
@@ -60,12 +69,16 @@ COORD screenPoint[30];
 COORD prePlayerPos;
 COORD curPlayerPos;
 
+void gameOver();
+void gameClear();
+
 void setStart();
 void drawTitle();
-void drawCtrl();
+void showCtrl();
 void startGame();
+void showCredit();
 void updateScreen();
-void quitGame();
+bool quitGame();
 void limit(short&, short, short);
 void setObs();
 void generateObs();

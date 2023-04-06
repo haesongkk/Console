@@ -2,14 +2,8 @@
 
 using namespace std;
 
-//
-// 게임 종료 >> quitGame
 // 
-// 게임 오버, 게임 클리어 >> startGame
-// 크레딧 >> main
-// 
-// updateUI 제대로 >> updateUI
-// hpCount--시 깜빡이는 이벤트 넣기 >> drawPlayer
+// drawTitle에서 selectMenu 함수 나누기
 //  
 // +++
 // 
@@ -17,8 +11,9 @@ using namespace std;
 // 배경음악 넣기
 // 더블 점프 제대로 구현하기
 // drawTitle, drawCtrl, quitGame, gameOver, gameClear ui 꾸미기
-// 함수, 변수 이름 정리 (drawTitle >> titleMenu)
+// 함수, 변수 이름 정리 
 // 파일 분할...
+// 타이틀에서 메뉴로 돌아가면 직전 메뉴 위치에 불 들어오게
 //
 
 int main()
@@ -26,16 +21,13 @@ int main()
     setScreenPoint();
     while (true)
     {
-        drawTitle();
-        if (isStart) startGame();
-        if (isCtrl) drawCtrl();
-        if (isQuit) quitGame();
-        // if(isCredit) showCredit(); 생성
+      drawTitle();
+      if (isStart) startGame();
+      if (isCtrl) showCtrl();
+      if (isCredit) showCredit();
+      if (isQuit && quitGame()) break; 
     }   
 }
-
-
-
 
 
 
@@ -46,12 +38,13 @@ void drawTitle()
     //const int xStart = 10, xControl = 20, xQuit = 30;
     int x = screenPoint[19].X, y = screenPoint[19].Y; // 메뉴 시작 위치
 
-    setColor(0, 15);
-    printf("메인 화면");
+    setColor(0, 10);
+    gotoXY(screenPoint[8].X, screenPoint[8].Y);
+    printf("장 애 물  피 하 기");
 
     //gotoXY(xStart, y);
     gotoXY(screenPoint[19].X, screenPoint[19].Y);
-    setColor(0, 15);
+    setColor(0, 13);
     printf(" 시 작 ");
 
     //gotoXY(xControl, y);
@@ -62,111 +55,212 @@ void drawTitle()
     //gotoXY(xQuit, y);
     gotoXY(screenPoint[21].X, screenPoint[21].Y);
     setColor(0, 15);
+    printf(" 정 보 ");
+
+    gotoXY(screenPoint[22].X, screenPoint[22].Y);
+    setColor(0, 15);
     printf(" 종 료 ");
 
-    getKey();
-    isLeft = false;
-    isSpace = false;
-    isRight = false;
-
-    //x = xStart;
-    gotoXY(x, y);
-    setColor(0, 13);
-    printf(" 시 작 ");
-
+    initTime();
+   
     while (true)
     {
-        getKey();
-        int caseNum = 19;
-        if (x == screenPoint[19].X) caseNum = 19;
-        if (x == screenPoint[20].X) caseNum = 20;
-        if (x == screenPoint[21].X) caseNum = 21;
-
-        switch (caseNum)
+        updateTime();
+        if (getElapsedTime() >= showDelay)
         {
-        case 19:
-            if (isSpace) // 시작
+            static ULONGLONG temp;
+            temp += getDeltaTime();
+            if (temp >= inputDelay)
             {
-                isSpace = false;
-                isStart = true;
-                return;
-            }
-            else if (isRight)
-            {
-                x = screenPoint[19].X;
-                gotoXY(x, y);
-                setColor(0, 15);
-                printf(" 시 작 ");
+                temp -= inputDelay;
+                updateInput();
+                int caseNum = 19;
+                if (x == screenPoint[19].X) caseNum = 19;
+                if (x == screenPoint[20].X) caseNum = 20;
+                if (x == screenPoint[21].X) caseNum = 21;
+                if (x == screenPoint[22].X) caseNum = 22;
 
-                x = screenPoint[20].X;
-                gotoXY(x, y);
-                setColor(0, 13);
-                printf(" 조 작 ");
+                switch (caseNum)
+                {
+                case 19: // 시작
+                    if (isSpace)
+                    {
+                        isSpace = false;
+                        isStart = true;
+                        return;
+                    }
+                    else if (isLeft)
+                    {
+                        isLeft = false;
+                    }
+                    else if (isRight)
+                    {
+                        x = screenPoint[19].X;
+                        gotoXY(x, y);
+                        setColor(0, 15);
+                        printf(" 시 작 ");
 
-                isRight = false;
-            }
-        case 20:
-            if (isSpace) // 조작
-            {
-                isSpace = false;
-                isCtrl = true;
-                return;
-            }
-            else if (isLeft)
-            {
-                x = screenPoint[20].X;
-                gotoXY(x, y);
-                setColor(0, 15);
-                printf(" 조 작 ");
+                        x = screenPoint[20].X;
+                        gotoXY(x, y);
+                        setColor(0, 13);
+                        printf(" 조 작 ");
 
-                x = screenPoint[19].X;
-                gotoXY(x, y);
-                setColor(0, 13);
-                printf(" 시 작 ");
+                        isRight = false;
+                    }
+                case 20: // 조작
+                    if (isSpace)
+                    {
+                        isSpace = false;
+                        isCtrl = true;
+                        return;
+                    }
+                    else if (isLeft)
+                    {
+                        x = screenPoint[20].X;
+                        gotoXY(x, y);
+                        setColor(0, 15);
+                        printf(" 조 작 ");
 
-                isLeft = false;
-            }
-            else if (isRight)
-            {
-                x = screenPoint[20].X;
-                gotoXY(x, y);
-                setColor(0, 15);
-                printf(" 조 작 ");
+                        x = screenPoint[19].X;
+                        gotoXY(x, y);
+                        setColor(0, 13);
+                        printf(" 시 작 ");
 
-                x = screenPoint[21].X;
-                gotoXY(x, y);
-                setColor(0, 13);
-                printf(" 종 료 ");
+                        isLeft = false;
+                    }
+                    else if (isRight)
+                    {
+                        x = screenPoint[20].X;
+                        gotoXY(x, y);
+                        setColor(0, 15);
+                        printf(" 조 작 ");
 
-                isRight = false;
-            }
-        case 21:
-            if (isSpace) //종료
-            {
-                isSpace = false;
-                isQuit = true;
-                return;
-            }
-            else if (isLeft)
-            {
-                x = screenPoint[21].X;
-                gotoXY(x, y);
-                setColor(0, 15);
-                printf(" 종 료 ");
+                        x = screenPoint[21].X;
+                        gotoXY(x, y);
+                        setColor(0, 13);
+                        printf(" 정 보 ");
 
-                x = screenPoint[20].X;
-                gotoXY(x, y);
-                setColor(0, 13);
-                printf(" 조 작 ");
+                        isRight = false;
+                    }
+                case 21: // 정보
+                    if (isSpace)
+                    {
+                        isSpace = false;
+                        isCredit = true;
+                        return;
+                    }
+                    else if (isLeft)
+                    {
+                        x = screenPoint[21].X;
+                        gotoXY(x, y);
+                        setColor(0, 15);
+                        printf(" 정 보 ");
 
-                isLeft = false;
+                        x = screenPoint[20].X;
+                        gotoXY(x, y);
+                        setColor(0, 13);
+                        printf(" 조 작 ");
+
+                        isLeft = false;
+                    }
+                    else if (isRight)
+                    {
+                        x = screenPoint[21].X;
+                        gotoXY(x, y);
+                        setColor(0, 15);
+                        printf(" 정 보 ");
+
+                        x = screenPoint[22].X;
+                        gotoXY(x, y);
+                        setColor(0, 13);
+                        printf(" 종 료 ");
+
+                        isRight = false;
+                    }
+                case 22: // 종료
+                    if (isSpace)
+                    {
+                        isSpace = false;
+                        isQuit = true;
+                        return;
+                    }
+                    else if (isLeft)
+                    {
+                        x = screenPoint[22].X;
+                        gotoXY(x, y);
+                        setColor(0, 15);
+                        printf(" 종 료 ");
+
+                        x = screenPoint[21].X;
+                        gotoXY(x, y);
+                        setColor(0, 13);
+                        printf(" 정 보 ");
+
+                        isLeft = false;
+                    }
+                    else if (isRight)
+                    {
+                        isRight = false;
+                    }
+                }
             }
         }
         
-        
+    }
+}
+
+
+
+void showCtrl()
+{
+
+    initConsole();
+    isCtrl = false;
+    gotoXY(screenPoint[8].X, screenPoint[8].Y);
+    setColor(0, 10);
+    printf("조 작  방 법");
+    initTime();
+    while (true)
+    {
+        updateTime();
+        if (getElapsedTime() >= showDelay)
+        {
+            updateInput();
+            if (isSpace)
+            {
+                isSpace = false;
+                break;
+            }
+        }
 
     }
 }
+
+void showCredit()
+{
+    initConsole();
+    isCredit = false;
+    gotoXY(screenPoint[8].X, screenPoint[8].Y);
+    setColor(0, 10);
+    printf(" 크 레 딧 ");
+    initTime();
+    while (true)
+    {
+        updateTime();
+        if (getElapsedTime() >= showDelay)
+        {
+            updateInput();
+            if (isSpace)
+            {
+                isSpace = false;
+                break;
+            }
+        }
+
+    }
+}
+
+
 
 void startGame()
 {
@@ -185,55 +279,160 @@ void startGame()
         generateObs();
         updateInput();
         updatePlayerMove();
-        //updateScreen();
         updateUI();
-        if (hpCount == 0)
+        if (isOver)
         {
-            // 게임 오버 화면 만들기 : 점수표시, 메인으로 돌아가기
-            // gameOver(); : (점수 표시) 스페이스바 >> quitGame();
-            isQuit = true;
+            gameOver();
             break;
         }
-        // if(isClear) gameClear(); : 스페이스바 >> quitGame();
+        if (isClear)
+        {
+            gameClear();
+            break;
+        }
     }
     return;
 }
 
-void drawCtrl()
+bool quitGame() 
 {
+    // bool bySelect 만들어서 종료 선택했을 경우와 게임 후 나오는 화면 구분
 
     initConsole();
-    isCtrl = false;
-    printf("조작 방법");
+
+    isQuit = false;
+    int x = screenPoint[19].X, y = screenPoint[19].Y;
+
+    gotoXY(screenPoint[19].X, screenPoint[19].Y);
+    setColor(0, 13);
+    printf(" 메 인 으 로 ");
+
+    gotoXY(screenPoint[21].X, screenPoint[21].Y);
+    setColor(0, 15);
+    printf(" 나 가 기 ");
+
+    isQuit = false;
+    gotoXY(screenPoint[7].X, screenPoint[7].Y);
+    setColor(0, 10);
+    printf("게 임 을  종 료 하 시 겠 습 니 까 ?");
+
+    initTime();
 
     while (true)
     {
-        getKey();
-        if (isSpace)
+        updateTime();
+        if (getElapsedTime() >= showDelay)
         {
-            isSpace = false;
-            break;
+            updateInput();
+            
+            int caseNum;
+            if (x == screenPoint[19].X) caseNum = 19;
+            if (x == screenPoint[21].X) caseNum = 21;
+
+            switch (caseNum)
+            {
+            case 19:
+                if (isSpace)
+                {
+                    isSpace = false;
+                    return false;
+                }
+                if (isRight) 
+                {
+                    isRight = false;
+
+                    x = screenPoint[19].X;
+                    gotoXY(x, y);
+                    setColor(0, 15);
+                    printf(" 메 인 으 로 ");
+
+                    x = screenPoint[21].X;
+                    gotoXY(x, y);
+                    setColor(0, 13);
+                    printf(" 나 가 기 ");
+                }
+            case 21:
+                if(isSpace)
+                {
+                    isSpace = false;
+                    return true;
+                }
+                if (isLeft)
+                {
+                    isLeft = false;
+
+                    x = screenPoint[21].X;
+                    gotoXY(x, y);
+                    setColor(0, 15);
+                    printf(" 나 가 기 ");
+
+                    x = screenPoint[19].X;
+                    gotoXY(x, y);
+                    setColor(0, 13);
+                    printf(" 메 인 으 로 ");
+                }
+
+            }
         }
     }
 }
 
-void quitGame()
+
+
+void gameOver()
 {
     initConsole();
-    isQuit = false;
-    gotoXY(0, 0);
-    setColor(0, 15);
-    printf("게임 종료");
+    isOver = false;
+    gotoXY(screenPoint[8].X, screenPoint[8].Y);
+    setColor(0, 10);
+    printf("게임 오버\n");
+    printf("time : %5.2f\n", timer);
+
+    initTime();
 
     while (true)
     {
-        // 시작화면으로 돌아가기
-        // 게임 종료
+        updateTime();
+        if (getElapsedTime() >= showDelay)
+        {
+          updateInput();
+          if (isSpace)
+          {
+              isSpace = false;
+              isQuit = true;
+              break;
+          }
+        }
     }
+    
+    
 }
 
+void gameClear()
+{
+    initConsole();
+    isClear = false;
+    gotoXY(screenPoint[8].X, screenPoint[8].Y);
+    setColor(0, 10);
+    printf("클리어!");
 
+    initTime();
 
+    while (true)
+    {
+        updateTime();
+        if (getElapsedTime() >= showDelay)
+        {
+            updateInput();
+            if (isSpace)
+            {
+                isSpace = false;
+                isQuit = true;
+                break;
+            }
+        }
+    }
+}
 
 
 
@@ -264,24 +463,6 @@ ULONGLONG getElapsedTime()
 
 
 
-
-
-
-void getKey()
-{
-    char key = _getch();
-    if (key == -32)
-    {
-        key = _getch();
-        if (key == 75) isLeft = true;
-        if (key == 77) isRight = true;
-    }
-    if (key == ' ')
-    {
-        isSpace = true;
-    }
-}
-
 void updateInput()
 {
     if (GetAsyncKeyState(VK_LEFT) & 0x8000)
@@ -296,81 +477,14 @@ void updateInput()
     
     if (GetAsyncKeyState(VK_SPACE) & 0x8000)
     {
-        isSpace = true;
+        if (!isSpace) isSpace = true;
+        else isSpace = false;
+        //isSpace = true;
     }
 
 }
 
 
-
-
-
-
-void initConsole()
-{
-    // 화면 
-    setColor(0, 15);
-    system("cls");
-
-    // 커서 숨기기
-    HANDLE consonleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
-    CONSOLE_CURSOR_INFO consoleCursor;
-    consoleCursor.bVisible = 0;
-    consoleCursor.dwSize = 1;
-    SetConsoleCursorInfo(consonleHandle, &consoleCursor);
-}
-
-// 보라색 13 하얀색 15 검정색 0
-void setColor(int backColor, int textColor)
-{
-    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (backColor << 4) + textColor);
-}
-
-void gotoXY(int x, int y)
-{
-    COORD cur = { x, y };
-    SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), cur);
-}
-
-void limit(short& n, short min, short max)
-{
-    if (n < min) n = min;
-    if (n > max) n = max;
-}
-
-void setStart()
-{
-    hpCount = 3;
-    timer = 0;
-}
-
-void updateUI()
-{
-    //ui 위치 screenPoint로 설정하기!
-
-
-    // 경과 시간
-    static ULONGLONG temp;
-    temp += getDeltaTime();
-    if (temp >= 10)
-    {
-        timer += 0.01;
-        temp -= 10;
-        
-    }
-
-    gotoXY(consoleScreenSize.Left, consoleScreenSize.Top);
-    setColor(15, 13);
-    printf("time : %5.2f", timer);
-
-    // 남은 생명력 기호로 표현하기
- 
-    gotoXY(consoleScreenSize.Right - 10, consoleScreenSize.Top);
-    setColor(15, 13);
-    cout << hpCount;
-
-    
-}
 
 void setScreenPoint()
 {
@@ -425,6 +539,90 @@ void setScreenPoint()
 
 }
 
+void initConsole()
+{
+    // 화면 
+    system("cls");
+    setColor(0, 15);
+
+    // 커서 숨기기
+    HANDLE consonleHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+    CONSOLE_CURSOR_INFO consoleCursor;
+    consoleCursor.bVisible = 0;
+    consoleCursor.dwSize = 1;
+    SetConsoleCursorInfo(consonleHandle, &consoleCursor);
+}
+
+// 보라색 13 하얀색 15 검정색 0
+void setColor(int backColor, int textColor)
+{
+    SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), (backColor << 4) + textColor);
+}
+
+void gotoXY(int x, int y)
+{
+    COORD cur = { x, y };
+    SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), cur);
+}
+
+void limit(short& n, short min, short max)
+{
+    if (n < min) n = min;
+    if (n > max) n = max;
+}
+
+
+
+void setStart()
+{
+    hpCount = 3;
+    timer = 0;
+}
+
+
+
+void updateUI()
+{
+    // 경과 시간
+    static ULONGLONG temp;
+    temp += getDeltaTime();
+    if (temp >= 10)
+    {
+        timer += 0.01;
+        temp -= 10;
+    }
+
+    gotoXY(consoleScreenSize.Left + 1, consoleScreenSize.Top + 1);
+    setColor(0, 15);
+    printf("time : %5.2f", timer);
+
+    // 남은 생명력 기호로 표현하기
+    if (hpCount == 3)
+    {
+        gotoXY(consoleScreenSize.Right - 5, consoleScreenSize.Top + 1);
+        setColor(0, 15);
+        printf("O O O");
+    }
+    if (hpCount == 2)
+    {
+        gotoXY(consoleScreenSize.Right - 5, consoleScreenSize.Top + 1);
+        setColor(0, 15);
+        printf("X O O");
+    }
+    if (hpCount == 1)
+    {
+        gotoXY(consoleScreenSize.Right - 5, consoleScreenSize.Top + 1);
+        setColor(0, 15);
+        printf("X X O");
+    }
+    
+    if (timer >= clearTime) isClear = true;
+    if (hpCount == 0) isOver = true;
+
+}
+
+
+
 void drawScreen()
 {
     for (int x = playerMovableRect.Left; x <= playerMovableRect.Right; x++)
@@ -439,39 +637,6 @@ void drawScreen()
     prePlayerPos.Y = playerMovableRect.Bottom;
     drawPlayer(true);
 }
-
-// 장애물이 맵을 자꾸 지워서 임시로 만든 함수
-void updateScreen()
-{
-    for (int x = playerMovableRect.Left; x <= playerMovableRect.Right; x++)
-    {
-        gotoXY(x, playerMovableRect.Bottom + 1);
-        setColor(0, 15);
-        putchar('#');
-    }
-
-    for (int x = playerMovableRect.Left - 1; x < playerMovableRect.Right + 1; x++)
-    {
-        gotoXY(x, playerMovableRect.Top - 1);
-        setColor(0, 15);
-        putchar(' ');
-        gotoXY(x, playerMovableRect.Bottom + 2);
-        setColor(0, 15);
-        putchar(' ');
-    }
-    for (int y = playerMovableRect.Top - 1; y < playerMovableRect.Bottom + 1; y++)
-    {
-        gotoXY(playerMovableRect.Left - 1, y);
-        setColor(0, 15);
-        putchar(' ');
-        gotoXY(playerMovableRect.Right +  1, y);
-        setColor(0, 15);
-        putchar(' ');
-    }
-}
-
-
-
 
 
 void updatePlayerMove()
@@ -489,7 +654,46 @@ void updatePlayerMove()
 void updatePlayerPos()
 {
     prePlayerPos = curPlayerPos;
-    
+
+    // 공중에 떠있으면 내려오게 만든다.
+    curPlayerPos.Y += velocity;
+    velocity += gravity;
+
+    if (curPlayerPos.Y <= playerMovableRect.Top)
+    {
+        curPlayerPos.Y = playerMovableRect.Top;
+    }
+    if (curPlayerPos.Y >= playerMovableRect.Bottom)
+    {
+        curPlayerPos.Y = playerMovableRect.Bottom;
+        velocity = 0;
+        onGround = true;
+        onJump = false;
+
+    }
+
+    if (isSpace)
+    {
+        isSpace = false;
+ 
+        if (onGround)
+        {
+            velocity += jumpVelocity;
+            onGround = false;
+            onJump = true;
+        }
+        //else if (onJump)
+        //{
+        //    velocity += doubleJumpVelocity;
+        //    onJump = false;
+        //}
+
+        gotoXY(0, 10);
+        setColor(0, 10);
+
+    }
+
+   
 
     if (isRight)
     {
@@ -504,47 +708,12 @@ void updatePlayerPos()
         limit(curPlayerPos.X, playerMovableRect.Left, playerMovableRect.Right);
     }
 
-    // int 값으로 space 바 누른 횟수 체크
-    if (isSpace)
-    {
-        isSpace = false;
-        if (onGround)
-        {
-            velocity = jumpVelocity;
-            onGround = false;
-        }
-        if (canJump)
-        {
-            velocity = doubleJumpVelocity;
-        }
-        
-    }
-   
-    // 공중에 떠있으면 내려오게 만든다.
-    curPlayerPos.Y += velocity;
-    velocity += gravity;
-
-    if (curPlayerPos.Y <= playerMovableRect.Top)
-    {
-        curPlayerPos.Y = playerMovableRect.Top;
-    }
-    if (curPlayerPos.Y >= playerMovableRect.Bottom)
-    {
-        curPlayerPos.Y = playerMovableRect.Bottom;
-        velocity = 0;
-        onGround = true;
-        canJump = false;
-    }
-    else if (curPlayerPos.Y > 20)
-    {
-        canJump = true;
-    }
-    
     if ((prePlayerPos.X != curPlayerPos.X) || (prePlayerPos.Y != curPlayerPos.Y))
     {
         drawPlayer(false);
     }
     else drawPlayer(true);
+    
 }
 
 void drawPlayer(bool isClear)
@@ -557,15 +726,57 @@ void drawPlayer(bool isClear)
         printf("  ");
     }
 
-    //if(isCrash)
+    if (isCrash)
+    {
+        static ULONGLONG temp;
+        temp += getDeltaTime();
+        if (temp < 2000)
+        {
+            gotoXY(curPlayerPos.X, curPlayerPos.Y);
+            setColor(4, 15);
+            printf("  ");
+        }
+        else if (temp < 4000)
+        {
+            gotoXY(curPlayerPos.X, curPlayerPos.Y);
+            setColor(13, 15);
+            printf("  ");
 
-    gotoXY(curPlayerPos.X, curPlayerPos.Y);
-    setColor(13, 15);
-    //putchar('  ');
-    printf("  ");
+        }
+        else if (temp < 6000)
+        {
+            gotoXY(curPlayerPos.X, curPlayerPos.Y);
+            setColor(4, 15);
+            printf("  ");
+        }
+        else if (temp < 8000)
+        {
+            gotoXY(curPlayerPos.X, curPlayerPos.Y);
+            setColor(13, 15);
+            printf("  ");
+        }
+        else if (temp < 10000)
+        {
+            gotoXY(curPlayerPos.X, curPlayerPos.Y);
+            setColor(4, 15);
+            printf("  ");
+        }
+
+        if (temp >= 10000)
+        {
+            temp -= 10000;
+            isCrash = false;
+        }
+    }
+
+    else
+    {
+        gotoXY(curPlayerPos.X, curPlayerPos.Y);
+        setColor(13, 15);
+        //putchar('  ');
+        printf("  ");
+    }
 }
-
-
 
 
 
@@ -576,9 +787,9 @@ void setObs()
     for (int i = 0; i < 100; i++)
     {
         if (i % 5 == 0) obs[i].curPos = screenPoint[24];
-        if (i % 5 == 1) obs[i].curPos = screenPoint[18];
+        if (i % 5 == 1) obs[i].curPos = screenPoint[11];
         if (i % 5 == 3) obs[i].curPos = screenPoint[12];
-        if (i % 5 == 2) obs[i].curPos = screenPoint[6];
+        if (i % 5 == 2) obs[i].curPos = screenPoint[23];
         if (i % 5 == 4) obs[i].curPos = screenPoint[0];
     }
     for (int i = 0; i < 100; i++)
@@ -589,12 +800,12 @@ void setObs()
     for (int i = 0; i < 100; i++)
     {
         //
-        obs[i].time = i * 1000;
+        obs[i].time = i * 300;
     }
     // 이동 속도
     for (int i = 0; i < 100; i++)
     {
-        if (i < 10) obs[i].speed = 20;
+        if (i < 10) obs[i].speed = 10;
         else if (i < 20) obs[i].speed = 20;
         else if (i < 30) obs[i].speed = 10;
         else if (i < 40) obs[i].speed = 5;
@@ -605,7 +816,8 @@ void setObs()
     // 이동 방향
     for (int i = 0; i < 100; i++)
     {
-        obs[i].direction = 0;
+        if (i % 2 == 0) obs[i].direction = 0;
+        if (i % 2 == 1) obs[i].direction = 1;
     }
 }
 
@@ -687,8 +899,20 @@ void updateObsDraw(int i)
    
 }
 
+// obs와 플레이어 충돌 감지
 void updateCollision(int i)
 {
-    if (obs[i].curPos.X == curPlayerPos.X && obs[i].curPos.Y == curPlayerPos.Y) hpCount--;
-    else if (obs[i].curPos.X == prePlayerPos.X && obs[i].curPos.Y == prePlayerPos.Y) hpCount--;
+    if (!isCrash)
+    {
+        if (obs[i].curPos.X == curPlayerPos.X && obs[i].curPos.Y == curPlayerPos.Y)
+        {
+            hpCount--;
+            isCrash = true;
+        }
+        else if (obs[i].curPos.X == prePlayerPos.X && obs[i].curPos.Y == prePlayerPos.Y)
+        {
+            hpCount--;
+            isCrash = true;
+        }
+    }
 }
