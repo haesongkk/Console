@@ -10,7 +10,8 @@
 #include "time.h"
 #include "game.h"
 
-const int playerMoveSpeed = 1;
+const int playerMoveSpeed = 8;
+const int playerJumpSpeed = 10;
 const int obsMoveSpeed = 1;
 
 int updateCount = 0;
@@ -52,9 +53,9 @@ bool onGround = true;
 bool onJump;
 bool isCrash;
 
-const double gravity = 0.005;
-const double jumpVelocity = -0.15; // 2단 구현되면 0.08
-const double doubleJumpVelocity = -0.05;
+const double gravity = 0.02;
+const double jumpVelocity = -0.3; // 2단 구현되면 0.08
+const double doubleJumpVelocity = -0.2;
 
 ULONGLONG previousTime;
 ULONGLONG currentTime;
@@ -71,6 +72,10 @@ COORD curPlayerPos;
 
 void gameOver();
 void gameClear();
+
+void updatePlayerJump();
+void updatePlayerPosY();
+
 
 void setStart();
 void drawTitle();

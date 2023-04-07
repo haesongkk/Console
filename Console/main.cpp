@@ -9,6 +9,7 @@ using namespace std;
 // 
 // 장애물 설정 다양하게 >> setObs
 // 배경음악 넣기
+// 
 // 더블 점프 제대로 구현하기
 // drawTitle, drawCtrl, quitGame, gameOver, gameClear ui 꾸미기
 // 함수, 변수 이름 정리 
@@ -39,8 +40,20 @@ void drawTitle()
     int x = screenPoint[19].X, y = screenPoint[19].Y; // 메뉴 시작 위치
 
     setColor(0, 10);
-    gotoXY(screenPoint[8].X, screenPoint[8].Y);
-    printf("장 애 물  피 하 기");
+    gotoXY(0, screenPoint[8].Y);
+    // printf("장 애 물  피 하 기");
+    // 
+    printf("                                             _|        _|      _|        _|                      _|    _|\n");
+    printf("               _|_|_|  _|      _|    _|_|          _|_|_|      _|_|_|    _|    _|_|      _|_|_|  _|  _|  \n");
+    printf("             _|    _|  _|      _|  _|    _|  _|  _|    _|      _|    _|  _|  _|    _|  _|        _|_|    \n");
+    printf("             _|    _|    _|  _|    _|    _|  _|  _|    _|      _|    _|  _|  _|    _|  _|        _|  _|  \n");
+    printf("               _|_|_|      _|        _|_|    _|    _|_|_|      _|_|_|    _|    _|_|      _|_|_|  _|    _|\n");
+    //
+    //printf("                                    ■         ■       ■         ■                       ■     ■  \n");
+    //printf("      ■ ■ ■   ■       ■     ■ ■           ■ ■ ■       ■ ■ ■     ■     ■ ■       ■ ■ ■   ■   ■   \n");
+    //printf("    ■     ■    ■     ■    ■     ■   ■   ■     ■       ■     ■   ■   ■     ■   ■         ■ ■     \n");
+    //printf("    ■     ■     ■   ■     ■     ■   ■   ■     ■       ■     ■   ■   ■     ■   ■         ■   ■   \n");
+    //printf("      ■ ■ ■       ■         ■ ■     ■     ■ ■ ■       ■ ■ ■     ■     ■ ■       ■ ■ ■   ■     ■ \n");
 
     //gotoXY(xStart, y);
     gotoXY(screenPoint[19].X, screenPoint[19].Y);
@@ -218,7 +231,13 @@ void showCtrl()
     isCtrl = false;
     gotoXY(screenPoint[8].X, screenPoint[8].Y);
     setColor(0, 10);
-    printf("조 작  방 법");
+    printf("조 작");
+    gotoXY(screenPoint[7].X, screenPoint[8].Y + 6);
+    setColor(0, 10);
+    printf("         이 동  :  좌 우  방 향 키");
+    gotoXY(screenPoint[7].X, screenPoint[8].Y + 8);
+    setColor(0, 10);
+    printf("         점 프  :  스 페 이 스 바");
     initTime();
     while (true)
     {
@@ -242,7 +261,13 @@ void showCredit()
     isCredit = false;
     gotoXY(screenPoint[8].X, screenPoint[8].Y);
     setColor(0, 10);
-    printf(" 크 레 딧 ");
+    printf(" 정 보 ");
+    gotoXY(screenPoint[7].X, screenPoint[8].Y + 6);
+    setColor(0, 10);
+    printf("                 플 밍  2 반");
+    gotoXY(screenPoint[7].X, screenPoint[8].Y + 8);
+    setColor(0, 10);
+    printf("                   신 해 성");
     initTime();
     while (true)
     {
@@ -314,7 +339,7 @@ bool quitGame()
     isQuit = false;
     gotoXY(screenPoint[7].X, screenPoint[7].Y);
     setColor(0, 10);
-    printf("게 임 을  종 료 하 시 겠 습 니 까 ?");
+    printf("      게 임 을  종 료 하 시 겠 습 니 까 ?");
 
     initTime();
 
@@ -474,13 +499,12 @@ void updateInput()
     {
         isRight = true;
     }
-    
     if (GetAsyncKeyState(VK_SPACE) & 0x8000)
     {
-        if (!isSpace) isSpace = true;
-        else isSpace = false;
-        //isSpace = true;
-    }
+        //if (!isSpace) isSpace = true;
+        //else isSpace = false;
+        isSpace = true; 
+    } 
 
 }
 
@@ -658,7 +682,11 @@ void updatePlayerPos()
     // 공중에 떠있으면 내려오게 만든다.
     curPlayerPos.Y += velocity;
     velocity += gravity;
-
+    if (curPlayerPos.Y <= 12)
+    {
+        velocity -= jumpVelocity;
+    }
+    
     if (curPlayerPos.Y <= playerMovableRect.Top)
     {
         curPlayerPos.Y = playerMovableRect.Top;
@@ -669,31 +697,52 @@ void updatePlayerPos()
         velocity = 0;
         onGround = true;
         onJump = false;
-
     }
+    
+
+    //static bool boo = true;
+    //static ULONGLONG time = 0;
+    //if (boo == false)
+    //{
+    //    time += getDeltaTime();
+    //}
+    //
+    //if (time >= 200)
+    //{
+    //    time = 0;
+    //    boo = true;
+    //}
+    //
+
+    //if (isSpace)
+    //{
+    //    isSpace = false;
+    //    // 땅에 있을 경우 점프
+    //    if (onGround && boo)
+    //    {
+    //        boo = false;
+    //        velocity += jumpVelocity;
+    //        onGround = false;
+    //    }
+    //    // 공중에 있을 경우 더블점프
+    //    if (!onGround && boo)
+    //    {
+    //        boo = false;
+    //        onJump = true;
+    //        velocity += doubleJumpVelocity;
+    //    }
+    //}
+
 
     if (isSpace)
     {
         isSpace = false;
- 
         if (onGround)
         {
             velocity += jumpVelocity;
             onGround = false;
-            onJump = true;
         }
-        //else if (onJump)
-        //{
-        //    velocity += doubleJumpVelocity;
-        //    onJump = false;
-        //}
-
-        gotoXY(0, 10);
-        setColor(0, 10);
-
-    }
-
-   
+ }
 
     if (isRight)
     {
@@ -714,6 +763,7 @@ void updatePlayerPos()
     }
     else drawPlayer(true);
     
+
 }
 
 void drawPlayer(bool isClear)
@@ -730,41 +780,41 @@ void drawPlayer(bool isClear)
     {
         static ULONGLONG temp;
         temp += getDeltaTime();
-        if (temp < 2000)
+        if (temp < 200)
         {
             gotoXY(curPlayerPos.X, curPlayerPos.Y);
             setColor(4, 15);
             printf("  ");
         }
-        else if (temp < 4000)
+        else if (temp < 400)
         {
             gotoXY(curPlayerPos.X, curPlayerPos.Y);
             setColor(13, 15);
             printf("  ");
 
         }
-        else if (temp < 6000)
+        else if (temp < 600)
         {
             gotoXY(curPlayerPos.X, curPlayerPos.Y);
             setColor(4, 15);
             printf("  ");
         }
-        else if (temp < 8000)
+        else if (temp < 800)
         {
             gotoXY(curPlayerPos.X, curPlayerPos.Y);
             setColor(13, 15);
             printf("  ");
         }
-        else if (temp < 10000)
+        else if (temp < 1000)
         {
             gotoXY(curPlayerPos.X, curPlayerPos.Y);
             setColor(4, 15);
             printf("  ");
         }
 
-        if (temp >= 10000)
+        if (temp >= 1000)
         {
-            temp -= 10000;
+            temp -= 1000;
             isCrash = false;
         }
     }
