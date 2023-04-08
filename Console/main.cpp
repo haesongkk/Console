@@ -1,5 +1,7 @@
 ﻿#include "main.h"
 
+
+
 using namespace std;
 
 // 
@@ -8,7 +10,6 @@ using namespace std;
 // +++
 // 
 // 장애물 설정 다양하게 >> setObs
-// 배경음악 넣기
 // 
 // 더블 점프 제대로 구현하기
 // drawTitle, drawCtrl, quitGame, gameOver, gameClear ui 꾸미기
@@ -19,6 +20,8 @@ using namespace std;
 
 int main()
 {
+    stopBgm();
+    playingBgm();
     setScreenPoint();
     while (true)
     {
@@ -31,23 +34,46 @@ int main()
 }
 
 
+void playingBgm()
+{
+    int volume = 10;
+    DWORD dwVolume = (DWORD)(0xFFFF * volume / 100);
+    PlaySound(TEXT("D:\\VS\\Console\\BGM.wav"), NULL,SND_ASYNC | SND_LOOP | SND_NOSTOP);
+    waveOutSetVolume(NULL, MAKELONG(dwVolume, dwVolume));
+    
+}
+
+void playingGameBgm()
+{
+    int volume = 10;
+    DWORD dwVolume = (DWORD)(0xFFFF * volume / 100);
+    PlaySound(TEXT("D:\\VS\\Console\\gameBGM.wav"), NULL, SND_ASYNC | SND_LOOP | SND_NOSTOP);
+    waveOutSetVolume(NULL, MAKELONG(dwVolume, dwVolume));
+}
+
+void stopBgm()
+{
+    PlaySound(NULL, NULL, NULL);   
+}
+
+
 
 void drawTitle()
 {
     initConsole();
-
+    
     //const int xStart = 10, xControl = 20, xQuit = 30;
     int x = screenPoint[19].X, y = screenPoint[19].Y; // 메뉴 시작 위치
 
     setColor(0, 10);
-    gotoXY(0, screenPoint[8].Y);
-    // printf("장 애 물  피 하 기");
+    gotoXY(screenPoint[8].X, screenPoint[8].Y);
+    printf("장 애 물  피 하 기");
     // 
-    printf("                                             _|        _|      _|        _|                      _|    _|\n");
-    printf("               _|_|_|  _|      _|    _|_|          _|_|_|      _|_|_|    _|    _|_|      _|_|_|  _|  _|  \n");
-    printf("             _|    _|  _|      _|  _|    _|  _|  _|    _|      _|    _|  _|  _|    _|  _|        _|_|    \n");
-    printf("             _|    _|    _|  _|    _|    _|  _|  _|    _|      _|    _|  _|  _|    _|  _|        _|  _|  \n");
-    printf("               _|_|_|      _|        _|_|    _|    _|_|_|      _|_|_|    _|    _|_|      _|_|_|  _|    _|\n");
+    //printf("                                             _|        _|      _|        _|                      _|    _|\n");
+    //printf("               _|_|_|  _|      _|    _|_|          _|_|_|      _|_|_|    _|    _|_|      _|_|_|  _|  _|  \n");
+    //printf("             _|    _|  _|      _|  _|    _|  _|  _|    _|      _|    _|  _|  _|    _|  _|        _|_|    \n");
+    //printf("             _|    _|    _|  _|    _|    _|  _|  _|    _|      _|    _|  _|  _|    _|  _|        _|  _|  \n");
+    //printf("               _|_|_|      _|        _|_|    _|    _|_|_|      _|_|_|    _|    _|_|      _|_|_|  _|    _|\n");
     //
     //printf("                                    ■         ■       ■         ■                       ■     ■  \n");
     //printf("      ■ ■ ■   ■       ■     ■ ■           ■ ■ ■       ■ ■ ■     ■     ■ ■       ■ ■ ■   ■   ■   \n");
@@ -289,6 +315,7 @@ void showCredit()
 
 void startGame()
 {
+    
     isStart = false;
 
     initConsole();
@@ -297,6 +324,9 @@ void startGame()
     
     setObs();
     drawScreen();
+
+    stopBgm();
+    playingGameBgm();
 
     while (true)
     { 
@@ -307,11 +337,15 @@ void startGame()
         updateUI();
         if (isOver)
         {
+            stopBgm();
+            playingBgm();
             gameOver();
             break;
         }
         if (isClear)
         {
+            stopBgm();
+            playingBgm();
             gameClear();
             break;
         }
@@ -406,6 +440,9 @@ bool quitGame()
 
 void gameOver()
 {
+
+    
+
     initConsole();
     isOver = false;
     gotoXY(screenPoint[8].X, screenPoint[8].Y);
@@ -458,6 +495,8 @@ void gameClear()
         }
     }
 }
+
+
 
 
 
@@ -601,6 +640,7 @@ void setStart()
 {
     hpCount = 3;
     timer = 0;
+    isCrash = false;
 }
 
 
@@ -652,8 +692,8 @@ void drawScreen()
     for (int x = playerMovableRect.Left; x <= playerMovableRect.Right; x++)
     {
         gotoXY(x, playerMovableRect.Bottom + 1);
-        setColor(0, 15);
-        putchar('#');
+        setColor(15, 15);
+        putchar(' ');
     }
     curPlayerPos.X = (playerMovableRect.Right + playerMovableRect.Left) / 2;
     curPlayerPos.Y = playerMovableRect.Bottom;
@@ -783,7 +823,7 @@ void drawPlayer(bool isClear)
         if (temp < 200)
         {
             gotoXY(curPlayerPos.X, curPlayerPos.Y);
-            setColor(4, 15);
+            setColor(10, 15);
             printf("  ");
         }
         else if (temp < 400)
@@ -796,7 +836,7 @@ void drawPlayer(bool isClear)
         else if (temp < 600)
         {
             gotoXY(curPlayerPos.X, curPlayerPos.Y);
-            setColor(4, 15);
+            setColor(10, 15);
             printf("  ");
         }
         else if (temp < 800)
@@ -808,7 +848,7 @@ void drawPlayer(bool isClear)
         else if (temp < 1000)
         {
             gotoXY(curPlayerPos.X, curPlayerPos.Y);
-            setColor(4, 15);
+            setColor(10, 15);
             printf("  ");
         }
 
@@ -833,41 +873,364 @@ void drawPlayer(bool isClear)
 // obs 기본값 설정
 void setObs()
 {
-    // 생성 위치
-    for (int i = 0; i < 100; i++)
+    
+     // 초코비 원샷하기
     {
-        if (i % 5 == 0) obs[i].curPos = screenPoint[24];
-        if (i % 5 == 1) obs[i].curPos = screenPoint[11];
-        if (i % 5 == 3) obs[i].curPos = screenPoint[12];
-        if (i % 5 == 2) obs[i].curPos = screenPoint[23];
-        if (i % 5 == 4) obs[i].curPos = screenPoint[0];
+        obs[0].time = 250;
+        obs[0].curPos.X = screenPoint[1].X;
+        obs[0].curPos.Y = screenPoint[1].Y;
+        obs[0].speed = 20;
+        obs[0].direction = 2;
+        obs[0].scale = "                                             ";
+
+        obs[1].time = 450;
+        obs[1].curPos.X = screenPoint[3].X;
+        obs[1].curPos.Y = screenPoint[1].Y;
+        obs[1].speed = 20;
+        obs[1].direction = 2;
+        obs[1].scale = "                                             ";
+
+        obs[2].time = 650;
+        obs[2].curPos.X = screenPoint[1].X;
+        obs[2].curPos.Y = screenPoint[1].Y;
+        obs[2].speed = 20;
+        obs[2].direction = 2;
+        obs[2].scale = "                                             ";                                 
     }
-    for (int i = 0; i < 100; i++)
+
+
+    // 상자를 머리위로 높이들어서
+    for (int i = 3; i < 11; i++)
     {
-        obs[i].prePos = obs[i].curPos;
+
+        if (i == 8 || i == 9)
+        {
+            obs[i].speed = 1;
+        }
+        else
+        {
+            obs[i].speed = 10;
+        }
+
+        obs[i].time = 1500;
+        obs[i].curPos = screenPoint[13];
+        obs[i].direction = i % 8;
+        obs[i].scale = "  ";
+ 
     }
-    // 생성 시간
-    for (int i = 0; i < 100; i++)
+    for (int i = 11; i < 19; i++)
     {
-        //
-        obs[i].time = i * 300;
-    }
-    // 이동 속도
-    for (int i = 0; i < 100; i++)
-    {
-        if (i < 10) obs[i].speed = 10;
-        else if (i < 20) obs[i].speed = 20;
-        else if (i < 30) obs[i].speed = 10;
-        else if (i < 40) obs[i].speed = 5;
-        else if (i < 50) obs[i].speed = 1;
+
+        if (i == 16 || i == 17)
+        {
+            obs[i].speed = 1;
+        }
+        else
+        {
+            obs[i].speed = 10;
+        }
+
+        obs[i].time = 2100;
+        obs[i].curPos = screenPoint[20];
+        obs[i].direction = i % 8;
+        obs[i].scale = "  ";
 
     }
-        
-    // 이동 방향
-    for (int i = 0; i < 100; i++)
+    for (int i = 20; i < 28; i++)
     {
-        if (i % 2 == 0) obs[i].direction = 0;
-        if (i % 2 == 1) obs[i].direction = 1;
+
+        if (i == 24 || i == 25)
+        {
+            obs[i].speed = 1;
+        }
+        else
+        {
+            obs[i].speed = 10;
+        }
+
+        obs[i].time = 2700;
+        obs[i].curPos = screenPoint[16];
+        obs[i].direction = i % 8;
+        obs[i].scale = "  ";
+
+    }
+    
+    // 전주
+    for (int i = 28; i < 56; i++)
+    {
+        obs[i].time = (i - 28) * 720 + 4200;
+        obs[i].curPos = screenPoint[24];
+        obs[i].speed = 10;
+        obs[i].direction = 0;
+        obs[i].scale = "  ";
+    }
+
+    // 마음속의 외침
+    for (int i = 56; i < 78; i++)
+    {
+        obs[i].time = (i - 56) * 25 + 9500;
+        obs[i].curPos.Y = screenPoint[0].Y;
+        obs[i].speed = 100;
+        obs[i].direction = 2;
+        obs[i].scale = "  ";
+
+        obs[56].curPos.X = screenPoint[2].X;
+        obs[57].curPos.X = screenPoint[2].X + 2;
+        obs[58].curPos.X = screenPoint[2].X + 4;
+        obs[59].curPos.X = screenPoint[2].X + 6;
+        obs[60].curPos.X = screenPoint[2].X + 8;
+
+        obs[61].curPos.X = screenPoint[4].X;
+        obs[62].curPos.X = screenPoint[4].X + 2;
+        obs[63].curPos.X = screenPoint[4].X + 4;
+        obs[64].curPos.X = screenPoint[4].X + 6;
+        obs[65].curPos.X = screenPoint[4].X + 8;
+
+        obs[66].curPos.X = screenPoint[1].X;
+        obs[67].curPos.X = screenPoint[1].X + 2;
+        obs[68].curPos.X = screenPoint[1].X + 4;
+        obs[69].curPos.X = screenPoint[1].X + 6;
+        obs[70].curPos.X = screenPoint[1].X + 8;
+
+        obs[71].curPos.X = screenPoint[3].X;
+        obs[72].curPos.X = screenPoint[3].X + 2;
+        obs[73].curPos.X = screenPoint[3].X + 4;
+        obs[74].curPos.X = screenPoint[3].X + 6;
+        obs[75].curPos.X = screenPoint[3].X + 8;
+
+        obs[76].curPos.X = screenPoint[2].X + 8;
+        obs[77].curPos.X = screenPoint[2].X;
+    }
+
+    // 짱돌
+    for (int i = 78;i < 82; i++)
+    {
+        
+        obs[i].time = (i - 78) * 200 + 15700;
+        obs[i].curPos.Y = screenPoint[1].Y;
+        obs[i].speed = 10;
+        obs[i].direction = 2;
+        obs[i].scale = "    ";
+    
+        obs[78].curPos.X = screenPoint[1].X;
+        obs[79].curPos.X = screenPoint[3].X;
+        obs[80].curPos.X = screenPoint[2].X;
+        obs[81].curPos.X = screenPoint[4].X;
+    }
+    for (int i = 82; i < 86; i++)
+    {
+
+        obs[i].time = (i - 82) * 200 + 17100;
+        obs[i].curPos.Y = screenPoint[1].Y;
+        obs[i].speed = 10;
+        obs[i].direction = 2;
+        obs[i].scale = "    ";
+
+        obs[82].curPos.X = screenPoint[1].X + 8;
+        obs[83].curPos.X = screenPoint[3].X + 8;
+        obs[84].curPos.X = screenPoint[2].X + 8;
+        obs[85].curPos.X = screenPoint[4].X + 8;
+    }
+    for (int i = 86; i < 90; i++)
+    {
+
+        obs[i].time = (i - 86) * 200 + 18500;
+        obs[i].curPos.Y = screenPoint[1].Y;
+        obs[i].speed = 10;
+        obs[i].direction = 2;
+        obs[i].scale = "    ";
+
+        obs[86].curPos.X = screenPoint[1].X;
+        obs[87].curPos.X = screenPoint[3].X + 4;
+        obs[88].curPos.X = screenPoint[2].X + 4;
+        obs[89].curPos.X = screenPoint[4].X + 8;
+    }
+
+    // 맷돌
+    for (int i = 90; i < 98; i += 2)
+    {
+        obs[i].time = (i - 90) * 100 + 21500;
+        obs[i+1].time = (i - 90) * 100 + 21500;
+
+        obs[i].curPos.X = screenPoint[18].X;
+        obs[i+1].curPos.X = screenPoint[18].X;
+
+        obs[i].speed = 10;
+        obs[i+1].speed = 10;
+
+        obs[i].direction = 0;
+        obs[i+1].direction = 0;
+
+        obs[i].scale = "    ";
+        obs[i+1].scale = "    ";
+
+        obs[90].curPos.Y = screenPoint[18].Y;
+        obs[91].curPos.Y = screenPoint[18].Y + 1;
+
+        obs[92].curPos.Y = screenPoint[6].Y;
+        obs[93].curPos.Y = screenPoint[6].Y + 1;
+
+        obs[94].curPos.Y = screenPoint[18].Y;
+        obs[95].curPos.Y = screenPoint[18].Y + 1;
+
+        obs[96].curPos.Y = screenPoint[6].Y;
+        obs[97].curPos.Y = screenPoint[6].Y + 1;
+    }
+    for (int i = 98; i < 105; i += 2)
+    {
+        obs[i].time = (i - 98) * 100 + 22900;
+        obs[i + 1].time = (i - 98) * 100 + 22900;
+
+        obs[i].curPos.X = screenPoint[18].X;
+        obs[i + 1].curPos.X = screenPoint[18].X;
+
+        obs[i].speed = 10;
+        obs[i + 1].speed = 10;
+
+        obs[i].direction = 0;
+        obs[i + 1].direction = 0;
+
+        obs[i].scale = "    ";
+        obs[i + 1].scale = "    ";
+
+        obs[98].curPos.Y = screenPoint[18].Y + 2;
+        obs[99].curPos.Y = screenPoint[18].Y + 3;
+
+        obs[100].curPos.Y = screenPoint[12].Y + 2;
+        obs[101].curPos.Y = screenPoint[12].Y + 3;
+
+        obs[102].curPos.Y = screenPoint[18].Y + 2;
+        obs[103].curPos.Y = screenPoint[18].Y + 3;
+
+        obs[104].curPos.Y = screenPoint[12].Y + 2;
+        obs[105].curPos.Y = screenPoint[12].Y + 3;
+    }
+    for (int i = 106; i < 120; i++)
+    {
+        obs[i].time = 25000;
+        obs[i].curPos.X = screenPoint[23].X - 40;
+        obs[i].speed = 10;
+        obs[i].direction = 1;
+        obs[i].scale = "                                       ";
+
+        obs[i].curPos.Y = screenPoint[23].Y - i + 106 ;
+    }
+
+    // 초코비 2트
+    {
+        obs[120].time = 25200;
+        obs[120].curPos.X = screenPoint[1].X;
+        obs[120].curPos.Y = screenPoint[1].Y;
+        obs[120].speed = 20;
+        obs[120].direction = 2;
+        obs[120].scale = "                                             ";
+
+        obs[121].time = 25400;
+        obs[121].curPos.X = screenPoint[3].X;
+        obs[121].curPos.Y = screenPoint[1].Y;
+        obs[121].speed = 20;
+        obs[121].direction = 2;
+        obs[121].scale = "                                             ";
+
+        obs[122].time = 25600;
+        obs[122].curPos.X = screenPoint[1].X;
+        obs[122].curPos.Y = screenPoint[1].Y;
+        obs[122].speed = 20;
+        obs[122].direction = 2;
+        obs[122].scale = "                                             ";
+    }
+   
+    // 아원츄베이베
+    for (int i = 123; i < 131; i++)
+    {
+        obs[i].time = (i - 123) * 100 + 27000;
+        obs[i].speed = 10;
+        obs[i].direction = 4;
+        obs[i].scale = "  ";
+
+        obs[123].curPos = screenPoint[12];
+        obs[124].curPos = screenPoint[6];
+        obs[125].curPos = screenPoint[1];
+        obs[126].curPos = screenPoint[2];
+        obs[127].curPos = screenPoint[6];
+        obs[128].curPos = screenPoint[12];
+        obs[129].curPos = screenPoint[2];
+        obs[130].curPos = screenPoint[1];
+    }
+
+    // 아니쥬베이베
+    for (int i = 131; i < 139; i++)
+    {
+        obs[i].time = (i - 131) * 100 + 28500;
+        obs[i].speed = 10;
+        obs[i].direction = 6;
+        obs[i].scale = "  ";
+
+        obs[131].curPos = screenPoint[3];
+        obs[132].curPos = screenPoint[4];
+        obs[133].curPos = screenPoint[11];
+        obs[134].curPos = screenPoint[17];
+        obs[135].curPos = screenPoint[4];
+        obs[136].curPos = screenPoint[3];
+        obs[137].curPos = screenPoint[17];
+        obs[138].curPos = screenPoint[11];
+    }
+
+    // 알러뷰베이베
+    for (int i = 139; i < 171; i += 2)
+    {
+        obs[i].time = (i - 139) * 100 + 30000;
+        obs[i + 1].time = (i + 1 - 139) * 100 + 30000;
+        obs[i].speed = 10;
+        obs[i + 1].speed = 10;
+        
+        obs[i].direction = 6;
+        obs[i + 1].direction = 4;
+
+        obs[i].scale = "  ";
+        obs[i + 1].scale = "  ";
+
+        obs[139].curPos = screenPoint[3];
+        obs[141].curPos = screenPoint[4];
+        obs[143].curPos = screenPoint[11];
+        obs[145].curPos = screenPoint[17];
+        obs[147].curPos = screenPoint[4];
+        obs[149].curPos = screenPoint[3];
+        obs[151].curPos = screenPoint[17];
+        obs[153].curPos = screenPoint[11];
+        obs[155].curPos = screenPoint[3];
+        obs[157].curPos = screenPoint[4];
+        obs[159].curPos = screenPoint[11];
+        obs[161].curPos = screenPoint[17];
+        obs[163].curPos = screenPoint[4];
+        obs[165].curPos = screenPoint[3];
+        obs[167].curPos = screenPoint[17];
+        obs[169].curPos = screenPoint[11];
+
+        obs[140].curPos = screenPoint[12];
+        obs[142].curPos = screenPoint[6];
+        obs[144].curPos = screenPoint[1];
+        obs[146].curPos = screenPoint[2];
+        obs[148].curPos = screenPoint[6];
+        obs[150].curPos = screenPoint[12];
+        obs[152].curPos = screenPoint[2];
+        obs[154].curPos = screenPoint[1];
+        obs[156].curPos = screenPoint[12];
+        obs[158].curPos = screenPoint[6];
+        obs[160].curPos = screenPoint[1];
+        obs[162].curPos = screenPoint[2];
+        obs[164].curPos = screenPoint[6];
+        obs[166].curPos = screenPoint[12];
+        obs[168].curPos = screenPoint[2];
+        obs[170].curPos = screenPoint[1];
+    }
+
+
+
+
+    for (int i = 0; i < maxObs; i++)
+    {
+        obs[i].prePos = obs[i].curPos;
     }
 }
 
@@ -876,7 +1239,7 @@ void generateObs()
 {
     ULONGLONG time = getElapsedTime();
 
-    for (int i = 0; i < 100; i++)
+    for (int i = 0; i < maxObs; i++)
     {
         if (time >= obs[i].time)
         {
@@ -921,6 +1284,22 @@ void updateObsPos(int i)
     case(3):
         obs[i].curPos.Y--;
         break;
+    case(4):
+        obs[i].curPos.X++;
+        obs[i].curPos.Y++;
+        break;
+    case(5):
+        obs[i].curPos.X++;
+        obs[i].curPos.Y--;
+        break;
+    case(6):
+        obs[i].curPos.X--;
+        obs[i].curPos.Y++;
+        break;
+    case(7):
+        obs[i].curPos.X--;
+        obs[i].curPos.Y--;
+        break;
     }
 }
 
@@ -929,22 +1308,46 @@ void updateObsDraw(int i)
 {
     // 이전 위치 삭제
 
+    if (obs[i].prePos.Y > playerMovableRect.Bottom)
+    {
+        obs[i].prePos.Y = playerMovableRect.Top;
+    }
+
     gotoXY(obs[i].prePos.X, obs[i].prePos.Y);
     setColor(0, 0);
-    printf("  ");
-
+    printf("%s", obs[i].scale);
+   
 
     // 화면 벗어나면 끝
-    if (obs[i].curPos.X > consoleScreenSize.Right) return;
-    if (obs[i].curPos.X < consoleScreenSize.Left) return;
-    if (obs[i].curPos.Y > consoleScreenSize.Bottom) return;
-    if (obs[i].curPos.Y < consoleScreenSize.Top) return;
+    if (obs[i].curPos.X >= playerMovableRect.Right)
+    {
+        obs[i].curPos.X = playerMovableRect.Right;
+        return;
+    }
+    if (obs[i].curPos.X <= playerMovableRect.Left)
+    {
+        obs[i].curPos.X = playerMovableRect.Left;
+        return;
+    }
+    if (obs[i].curPos.Y > playerMovableRect.Bottom)
+    {
+        //obs[i].prePos.Y = playerMovableRect.Bottom + 1;
+        obs[i].curPos.Y = playerMovableRect.Bottom + 1;
+        
+    }
+    if (obs[i].curPos.Y <= playerMovableRect.Top)
+    {
+        obs[i].curPos.Y = playerMovableRect.Top;
+        return;
+    }
+    
+
 
     // 현재 위치 표시
     gotoXY(obs[i].curPos.X, obs[i].curPos.Y);
     setColor(15, 0);
-    printf("  ");
-
+    printf("%s", obs[i].scale);
+    
 
    
 }
@@ -952,17 +1355,21 @@ void updateObsDraw(int i)
 // obs와 플레이어 충돌 감지
 void updateCollision(int i)
 {
+
+    
     if (!isCrash)
     {
-        if (obs[i].curPos.X == curPlayerPos.X && obs[i].curPos.Y == curPlayerPos.Y)
+      
+        for (int k = 0; k < strlen(obs[i].scale); k++)
         {
-            hpCount--;
-            isCrash = true;
+            if (obs[i].curPos.X + k == curPlayerPos.X && obs[i].curPos.Y == curPlayerPos.Y)
+            {
+                hpCount--;
+                isCrash = true;
+            }
+            
         }
-        else if (obs[i].curPos.X == prePlayerPos.X && obs[i].curPos.Y == prePlayerPos.Y)
-        {
-            hpCount--;
-            isCrash = true;
-        }
+   
+        
     }
 }

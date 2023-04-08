@@ -3,6 +3,12 @@
 #include <iostream>
 #include <Windows.h>
 #include <conio.h>
+#include <string.h>
+
+
+#pragma comment (lib, "winmm.lib")    //¿Ωæ«
+#include <mmsystem.h>;                //¿Ωæ«
+#include <Digitalv.h>;                //¿Ωæ«
 
 #include "input.h"
 #include "util.h"
@@ -10,7 +16,15 @@
 #include "time.h"
 #include "game.h"
 
-const int playerMoveSpeed = 8;
+
+
+
+void playingBgm();
+void playingGameBgm();
+void stopBgm();
+
+
+const int playerMoveSpeed = 9;
 const int playerJumpSpeed = 10;
 const int obsMoveSpeed = 1;
 
@@ -19,7 +33,7 @@ int updateCount = 0;
 int hpCount;
 double timer;
 
-const double clearTime = 10;
+const double clearTime = 38;
 
 struct obstacle
 {
@@ -28,9 +42,12 @@ struct obstacle
     ULONGLONG time;
     double speed; // ¿Ãµøº”µµ
     int direction; // ¿ÃµøπÊ«‚
+    const char* scale = "  ";
 };
 
-obstacle obs[100];
+const int maxObs = 171;
+
+obstacle obs[maxObs];
 
 bool isStart;
 bool isCtrl;
@@ -69,6 +86,10 @@ COORD screenPoint[30];
 
 COORD prePlayerPos;
 COORD curPlayerPos;
+
+
+void playingBgm();
+void playingGameBGM();
 
 void gameOver();
 void gameClear();
