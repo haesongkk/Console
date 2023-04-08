@@ -38,7 +38,7 @@ void playingBgm()
 {
     int volume = 10;
     DWORD dwVolume = (DWORD)(0xFFFF * volume / 100);
-    PlaySound(TEXT("D:\\VS\\Console\\BGM.wav"), NULL,SND_ASYNC | SND_LOOP | SND_NOSTOP);
+    PlaySound(TEXT("BGM.wav"), NULL,SND_ASYNC | SND_LOOP | SND_NOSTOP);
     waveOutSetVolume(NULL, MAKELONG(dwVolume, dwVolume));
     
 }
@@ -47,7 +47,7 @@ void playingGameBgm()
 {
     int volume = 10;
     DWORD dwVolume = (DWORD)(0xFFFF * volume / 100);
-    PlaySound(TEXT("D:\\VS\\Console\\gameBGM.wav"), NULL, SND_ASYNC | SND_LOOP | SND_NOSTOP);
+    PlaySound(TEXT("gameBGM.wav"), NULL, SND_ASYNC | SND_LOOP | SND_NOSTOP);
     waveOutSetVolume(NULL, MAKELONG(dwVolume, dwVolume));
 }
 
