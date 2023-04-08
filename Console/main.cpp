@@ -1,5 +1,6 @@
 ﻿#include "main.h"
 
+// 창크기 120 * 30
 
 
 using namespace std;
@@ -67,7 +68,7 @@ void drawTitle()
 
     setColor(0, 10);
     gotoXY(screenPoint[8].X, screenPoint[8].Y);
-    printf("장 애 물  피 하 기");
+    printf("3 8 초  버 티 기");
     // 
     //printf("                                             _|        _|      _|        _|                      _|    _|\n");
     //printf("               _|_|_|  _|      _|    _|_|          _|_|_|      _|_|_|    _|    _|_|      _|_|_|  _|  _|  \n");
@@ -876,21 +877,21 @@ void setObs()
     
      // 초코비 원샷하기
     {
-        obs[0].time = 250;
-        obs[0].curPos.X = screenPoint[1].X;
+        obs[0].time = 350;
+        obs[0].curPos.X = screenPoint[1].X-10;
         obs[0].curPos.Y = screenPoint[1].Y;
-        obs[0].speed = 20;
+        obs[0].speed = 30;
         obs[0].direction = 2;
         obs[0].scale = "                                             ";
 
-        obs[1].time = 450;
+        obs[1].time = 550;
         obs[1].curPos.X = screenPoint[3].X;
         obs[1].curPos.Y = screenPoint[1].Y;
         obs[1].speed = 20;
         obs[1].direction = 2;
         obs[1].scale = "                                             ";
 
-        obs[2].time = 650;
+        obs[2].time = 750;
         obs[2].curPos.X = screenPoint[1].X;
         obs[2].curPos.Y = screenPoint[1].Y;
         obs[2].speed = 20;
@@ -1224,8 +1225,6 @@ void setObs()
         obs[168].curPos = screenPoint[2];
         obs[170].curPos = screenPoint[1];
     }
-
-
 
 
     for (int i = 0; i < maxObs; i++)
