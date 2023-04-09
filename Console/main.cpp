@@ -7,11 +7,6 @@ using namespace std;
 
 // 
 // drawTitle에서 selectMenu 함수 나누기
-//  
-// +++
-// 
-// 장애물 설정 다양하게 >> setObs
-// 
 // 더블 점프 제대로 구현하기
 // drawTitle, drawCtrl, quitGame, gameOver, gameClear ui 꾸미기
 // 함수, 변수 이름 정리 
@@ -32,7 +27,9 @@ int main()
       if (isCredit) showCredit();
       if (isQuit && quitGame()) break; 
     }   
+    
 }
+
 
 
 void playingBgm()
@@ -291,10 +288,10 @@ void showCredit()
     printf(" 정 보 ");
     gotoXY(screenPoint[7].X, screenPoint[8].Y + 6);
     setColor(0, 10);
-    printf("                 플 밍  2 반");
+    printf("                    플 밍  2 반");
     gotoXY(screenPoint[7].X, screenPoint[8].Y + 8);
     setColor(0, 10);
-    printf("                   신 해 성");
+    printf("                     신 해 성");
     initTime();
     while (true)
     {
@@ -446,9 +443,11 @@ void gameOver()
 
     initConsole();
     isOver = false;
+
     gotoXY(screenPoint[8].X, screenPoint[8].Y);
     setColor(0, 10);
     printf("게임 오버\n");
+    gotoXY(screenPoint[8].X, screenPoint[8].Y + 2);
     printf("time : %5.2f\n", timer);
 
     initTime();
@@ -467,14 +466,13 @@ void gameOver()
           }
         }
     }
-    
-    
 }
 
 void gameClear()
 {
     initConsole();
     isClear = false;
+
     gotoXY(screenPoint[8].X, screenPoint[8].Y);
     setColor(0, 10);
     printf("클리어!");
@@ -702,6 +700,7 @@ void drawScreen()
     prePlayerPos.Y = playerMovableRect.Bottom;
     drawPlayer(true);
 }
+
 
 
 void updatePlayerMove()
@@ -1302,7 +1301,7 @@ void updateObsPos(int i)
     }
 }
 
-// obs 생성 위치 적용 & draw
+// obs 생성 위치 적용 & draw 
 void updateObsDraw(int i)
 {
     // 이전 위치 삭제
