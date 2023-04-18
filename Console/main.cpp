@@ -34,7 +34,7 @@ int main()
 
 void playingBgm()
 {
-    int volume = 10;
+    int volume = 100;
     DWORD dwVolume = (DWORD)(0xFFFF * volume / 100);
     PlaySound(TEXT("BGM.wav"), NULL,SND_ASYNC | SND_LOOP | SND_NOSTOP);
     waveOutSetVolume(NULL, MAKELONG(dwVolume, dwVolume));
@@ -43,7 +43,7 @@ void playingBgm()
 
 void playingGameBgm()
 {
-    int volume = 10;
+    int volume = 50;
     DWORD dwVolume = (DWORD)(0xFFFF * volume / 100);
     PlaySound(TEXT("gameBGM.wav"), NULL, SND_ASYNC | SND_LOOP | SND_NOSTOP);
     waveOutSetVolume(NULL, MAKELONG(dwVolume, dwVolume));
